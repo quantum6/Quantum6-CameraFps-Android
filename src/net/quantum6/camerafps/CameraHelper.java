@@ -62,6 +62,45 @@ final class CameraHelper implements SurfaceHolder.Callback
         initCamera(width, height);
     }
     
+    private static boolean setCameraFocus(Camera.Parameters parameters, String selected)
+    {
+        List<String> modes = parameters.getSupportedFocusModes();
+        try
+        {
+            for (String mode : modes)
+            {
+                //优先使用这个对焦方式。
+                if (null != mode && mode.equals(selected))
+                {
+                    parameters.setFocusMode(mode);
+                    Log.e(TAG, "setCameraFocus="+mode);
+                    return true;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    private static void setCameraFocus(Camera.Parameters parameters)
+    {
+        String[] selectedModes =
+            {
+                Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO,
+                Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE
+            };
+        for (String mode : selectedModes)
+        {
+            if (setCameraFocus(parameters, mode))
+            {
+                return;
+            }
+        }
+    }
+    
     private void initCamera(int width, int height)
     {
         if (null != mCamera)
@@ -71,7 +110,7 @@ final class CameraHelper implements SurfaceHolder.Callback
         Log.d(TAG, "initCamera() count="+Camera.getNumberOfCameras());
         try
         {
-            mCamera = Camera.open(1);
+            mCamera = Camera.open(0);
         }
         catch (Exception e)
         {
@@ -82,7 +121,7 @@ final class CameraHelper implements SurfaceHolder.Callback
         {
             try
             {
-                mCamera = Camera.open(0);
+                mCamera = Camera.open(1);
             }
             catch (Exception e)
             {
@@ -149,6 +188,7 @@ final class CameraHelper implements SurfaceHolder.Callback
             parameters.setPreviewFormat(PREVIEW_FORMAT);
             parameters.setPreviewFpsRange(MIN_FPS*1000, MAX_FPS*1000);
             parameters.setPreviewFrameRate(frameRate);
+            setCameraFocus(parameters);
             
             Log.d(TAG, "getSupportedAntibanding()" +parameters.getSupportedAntibanding() );
             Log.d(TAG, "getSupportedColorEffects()"+parameters.getSupportedColorEffects());
