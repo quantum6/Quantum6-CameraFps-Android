@@ -83,6 +83,28 @@ public final class CameraActivity extends Activity implements View.OnClickListen
         int height      = Integer.parseInt(selected.substring(pos+1).trim());
 
         mCameraHelper.changeResolution(width, height);
+        addResolutions();
+    }
+    
+    private void addResolutions()
+    {
+        List<String> resolutions = new LinkedList<String>();
+        if (null != mCameraHelper.mSupportedSizes)
+        {
+            for (int i = 0; i < mCameraHelper.mSupportedSizes.size(); i++)
+            {
+                Size size = mCameraHelper.mSupportedSizes.get(i);
+                resolutions.add("分辨率"+i+"=("+size.width+", "+size.height+")");
+            }
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                this.getApplicationContext(), 
+                R.layout.spinner_item,
+                resolutions
+                );
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        mResolution.setAdapter(adapter);
     }
     
     private Handler mHandler = new Handler()
@@ -105,23 +127,7 @@ public final class CameraActivity extends Activity implements View.OnClickListen
                 case MESSAGE_CHECK_INIT:
                     if (mCameraHelper.isInited)
                     {
-                        List<String> resolutions = new LinkedList<String>();
-                        if (null != mCameraHelper.mSupportedSizes)
-                        {
-                            for (int i = 0; i < mCameraHelper.mSupportedSizes.size(); i++)
-                            {
-                                Size size = mCameraHelper.mSupportedSizes.get(i);
-                                resolutions.add("分辨率"+i+"=("+size.width+", "+size.height+")");
-                            }
-                        }
-
-                        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-                                CameraActivity.this.getApplicationContext(), 
-                                R.layout.spinner_item,
-                                resolutions
-                                );
-                        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-                        mResolution.setAdapter(adapter);
+                        addResolutions();
                         mResolution.setOnItemSelectedListener(CameraActivity.this);
                         mHandler.sendEmptyMessageDelayed(MESSAGE_CHECK_FPS, TIME_DELAY);
                     }

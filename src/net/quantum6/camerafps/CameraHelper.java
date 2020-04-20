@@ -105,8 +105,9 @@ final class CameraHelper implements SurfaceHolder.Callback
     {
         if (Camera.getNumberOfCameras() > 1)
         {
-            useBackCamera = !useBackCamera;
-            mPreviewSize = null;
+            useBackCamera   = !useBackCamera;
+            mPreviewSize    = null;
+            mSupportedSizes = null;
         }
     }
 
