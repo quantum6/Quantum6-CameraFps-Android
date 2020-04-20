@@ -8,7 +8,6 @@ import android.hardware.Camera.Size;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -16,6 +15,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -61,13 +61,28 @@ public final class CameraActivity extends Activity implements View.OnClickListen
         
         mInfoText = (TextView)this.findViewById(R.id.info_text);
 
+        Button toggle = (Button)this.findViewById(R.id.toogle);
+        toggle.setOnClickListener(this);
+
         mHandler.sendEmptyMessageDelayed(MESSAGE_CHECK_INIT, TIME_DELAY);
     }
 
     @Override
     public void onClick(View view)
     {
-        Log.d(TAG, "onClick()");
+        mCameraHelper.toggleCamera();
+        changeResolution();
+    }
+    
+    private void changeResolution()
+    {
+        String selected = (String) mResolution.getItemAtPosition(mSelectedIndex);
+        selected        = selected.substring(selected.indexOf('(')+1, selected.indexOf(')'));
+        int pos         = selected.indexOf(',');
+        int width       = Integer.parseInt(selected.substring(0, pos));
+        int height      = Integer.parseInt(selected.substring(pos+1).trim());
+
+        mCameraHelper.changeResolution(width, height);
     }
     
     private Handler mHandler = new Handler()
@@ -161,13 +176,7 @@ public final class CameraActivity extends Activity implements View.OnClickListen
         }
         
         mSelectedIndex = position;
-        String selected = (String) adapterView.getItemAtPosition(position);
-        selected = selected.substring(selected.indexOf('(')+1, selected.indexOf(')'));
-        int pos = selected.indexOf(',');
-        int width  = Integer.parseInt(selected.substring(0, pos));
-        int height = Integer.parseInt(selected.substring(pos+1).trim());
-
-        mCameraHelper.openCamera(width, height);
+        changeResolution();
         mHandler.sendEmptyMessage(MESSAGE_CHANGE_SHAPE);
     }
 

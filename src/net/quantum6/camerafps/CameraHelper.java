@@ -37,7 +37,7 @@ final class CameraHelper implements SurfaceHolder.Callback
     private int  GREEN_SCREEN_COUNT = 10;
     private boolean mResolutionChecked = false;
     
-    
+    private boolean useBackCamera = true;
     boolean         isInited                = false;
 
 
@@ -52,7 +52,7 @@ final class CameraHelper implements SurfaceHolder.Callback
         //
     }
 
-    public void openCamera(int width, int height)
+    public void changeResolution(int width, int height)
     {
         if (null != mPreviewSize && width == mPreviewSize.width && height == mPreviewSize.height)
         {
@@ -101,32 +101,31 @@ final class CameraHelper implements SurfaceHolder.Callback
         }
     }
     
+    public void toggleCamera()
+    {
+        if (Camera.getNumberOfCameras() > 1)
+        {
+            useBackCamera = !useBackCamera;
+            mPreviewSize = null;
+        }
+    }
+
     private void initCamera(int width, int height)
     {
         if (null != mCamera)
         {
             return;
         }
-        Log.d(TAG, "initCamera() count="+Camera.getNumberOfCameras());
-        try
-        {
-            mCamera = Camera.open(0);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-
+        
         if (null == mCamera)
         {
             try
             {
-                mCamera = Camera.open(1);
+                mCamera = Camera.open(useBackCamera ? 0 : 1);
             }
             catch (Exception e)
             {
                 e.printStackTrace();
-                return;
             }
         }
 
@@ -368,7 +367,7 @@ final class CameraHelper implements SurfaceHolder.Callback
             if (       size.width  < this.mPreviewSize.width
                     || size.height < this.mPreviewSize.height)
             {
-                this.openCamera(size.width, size.height);
+                this.changeResolution(size.width, size.height);
                 return true;
             }
         }
