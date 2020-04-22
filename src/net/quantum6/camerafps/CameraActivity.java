@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.hardware.Camera.Size;
 import android.os.Bundle;
 import android.os.Handler;
@@ -59,10 +60,11 @@ public final class CameraActivity extends Activity implements View.OnClickListen
         mFrameLaytout=(FrameLayout) this.findViewById(R.id.display_container);
         mFrameLaytout.addView(mDisplayView);
         mDisplayView.getHolder().addCallback(mDisplayView);
+        //mDisplayView.setBackgroundColor(Color.RED);
         
-        SurfaceHolder previewHolder = mPreviewView.getHolder();
         mPreviewView.bringToFront();
         mPreviewView.setZOrderOnTop(true);
+        SurfaceHolder previewHolder = mPreviewView.getHolder();
         mCameraHelper.mPreviewHolder = previewHolder;
         previewHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         previewHolder.addCallback(mCameraHelper.previewCallback);
@@ -83,6 +85,7 @@ public final class CameraActivity extends Activity implements View.OnClickListen
     {
         mCameraHelper.toggleCamera();
         changeResolution();
+        addResolutions();
     }
     
     private void changeResolution()
@@ -94,7 +97,6 @@ public final class CameraActivity extends Activity implements View.OnClickListen
         int height      = Integer.parseInt(selected.substring(pos+1).trim());
 
         mCameraHelper.changeResolution(width, height);
-        addResolutions();
     }
     
     private void addResolutions()

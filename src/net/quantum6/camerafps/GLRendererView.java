@@ -20,7 +20,7 @@ public class GLRendererView extends GLSurfaceView implements GLSurfaceView.Rende
     private final static String TAG = GLRendererView.class.getCanonicalName();
     
 	int mBufferWidthY, mBufferHeightY,  mBufferWidthUV, mBufferHeightUV;
-	ByteBuffer mBuffer;
+	public ByteBuffer mBuffer;
 	int mBufferPositionY, mBufferPositionU, mBufferPositionV;
 	
 	private static final int FLOAT_SIZE_BYTES = 4;
@@ -148,7 +148,7 @@ public class GLRendererView extends GLSurfaceView implements GLSurfaceView.Rende
         	synchronized(this){
 		        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 		        GLES20.glBindTexture(  GLES20.GL_TEXTURE_2D, mTextureY[0]);
-		        GLES20.glTexImage2D(   GLES20.GL_TEXTURE_2D, 0, GLES20.GL_LUMINANCE, mBufferWidthY, mBufferHeightY, 0, GLES20.GL_LUMINANCE, GLES20.GL_UNSIGNED_BYTE, mBuffer.position(mBufferPositionY));
+		        GLES20.glTexImage2D(   GLES20.GL_TEXTURE_2D, 0, GLES20.GL_LUMINANCE, mBufferWidthY,  mBufferHeightY,  0, GLES20.GL_LUMINANCE, GLES20.GL_UNSIGNED_BYTE, mBuffer.position(mBufferPositionY));
 		        GLES20.glUniform1i(muSamplerYHandle, 0);
 		        
 		        GLES20.glActiveTexture(GLES20.GL_TEXTURE1);

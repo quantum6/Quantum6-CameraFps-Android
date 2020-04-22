@@ -191,8 +191,15 @@ final class CameraHelper
     {
         fpsCounter.count();
         
-        Log.e(TAG, "processData() "+data.length);
-        //requestRender();
+        //Log.e(TAG, "processData() "+data.length);
+        if (rendererView.mBuffer.limit() != data.length)
+        {
+            rendererView.mBuffer = ByteBuffer.allocateDirect(data.length);
+        }
+        rendererView.mBuffer.rewind();
+        byte[] newData = new byte[data.length];
+        rendererView.mBuffer.put(newData);
+        rendererView.requestRender();
     }
 
     private void closeCamera()
