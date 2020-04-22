@@ -14,11 +14,10 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
 import android.view.SurfaceHolder;
-import android.view.View;
 
-public class GLPreviewView extends GLSurfaceView implements GLSurfaceView.Renderer
+public class GLRendererView extends GLSurfaceView implements GLSurfaceView.Renderer
 {
-    private final static String TAG = GLPreviewView.class.getCanonicalName();
+    private final static String TAG = GLRendererView.class.getCanonicalName();
     
 	int mBufferWidthY, mBufferHeightY,  mBufferWidthUV, mBufferHeightUV;
 	ByteBuffer mBuffer;
@@ -86,7 +85,7 @@ public class GLPreviewView extends GLSurfaceView implements GLSurfaceView.Render
     private int mViewWidth, mViewHeight, mViewX, mViewY;
     private boolean mFullScreenRequired;
 	
-	public GLPreviewView(Context context, boolean fullScreenRequired, ByteBuffer buffer, int bufferWidth, int bufferHeight, int fps) {
+	public GLRendererView(Context context) {
 		super(context);
         setEGLContextClientVersion(2);
 		setEGLConfigChooser(8, 8, 8, 8, 16, 0);	
@@ -94,8 +93,6 @@ public class GLPreviewView extends GLSurfaceView implements GLSurfaceView.Render
         getHolder().setFormat(PixelFormat.TRANSLUCENT);
         getHolder().setType(SurfaceHolder.SURFACE_TYPE_GPU);
         setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-  
-        setBuffer(buffer, bufferWidth, bufferHeight);
         mContext = context;
         
         mTriangleVertices = ByteBuffer.allocateDirect(TRIANFLE_VERTICES_DATA.length
@@ -106,21 +103,24 @@ public class GLPreviewView extends GLSurfaceView implements GLSurfaceView.Render
                 * SHORT_SIZE_BYTES).order(ByteOrder.nativeOrder()).asShortBuffer();
         mIndices.put(INDICES_DATA).position(0);
         
+	}
+	
+	public void setParams(boolean fullScreenRequired, ByteBuffer buffer, int bufferWidth, int bufferHeight, int fps)
+	{
+        mBuffer          = buffer;
+        mBufferWidthY    = bufferWidth;
+        mBufferHeightY   = bufferHeight;
+        
+        mBufferWidthUV   = (mBufferWidthY >> 1);
+        mBufferHeightUV  = (mBufferHeightY >> 1);
+        
+        mBufferPositionY = 0;
+        mBufferPositionU = (mBufferWidthY * mBufferHeightY);
+        mBufferPositionV = (mBufferPositionU + (mBufferWidthUV * mBufferHeightUV));
+
         mFullScreenRequired = fullScreenRequired;
 	}
 	
-	public void setBuffer(ByteBuffer buffer, int bufferWidth, int bufferHeight){
-		mBuffer          = buffer;
-		mBufferWidthY    = bufferWidth;
-		mBufferHeightY   = bufferHeight;
-		
-		mBufferWidthUV   = (mBufferWidthY >> 1);
-		mBufferHeightUV  = (mBufferHeightY >> 1);
-		
-		mBufferPositionY = 0;
-		mBufferPositionU = (mBufferWidthY * mBufferHeightY);
-		mBufferPositionV = (mBufferPositionU + (mBufferWidthUV * mBufferHeightUV));
-	}
 
 	public boolean isReady(){
 		return (mSurfaceCreated && !mSurfaceDestroyed);
@@ -166,12 +166,14 @@ public class GLPreviewView extends GLSurfaceView implements GLSurfaceView.Render
 	    GLES20.glDrawElements(GLES20.GL_TRIANGLES, INDICES_DATA.length, GLES20.GL_UNSIGNED_SHORT, mIndices);
     }
 
+    @Override
     public void onSurfaceChanged(GL10 glUnused, int width, int height) {
     	GLES20.glViewport(0, 0, width, height);
     	setViewport(width, height);
         // GLU.gluPerspective(glUnused, 45.0f, (float)width/(float)height, 0.1f, 100.0f);
     }
 
+    @Override
     public void onSurfaceCreated(GL10 glUnused, EGLConfig config) {
     	GLES20.glEnable( GLES20.GL_BLEND);
     	GLES20.glDisable(GLES20.GL_DEPTH_TEST);

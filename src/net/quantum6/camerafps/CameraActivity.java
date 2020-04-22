@@ -16,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -34,12 +35,14 @@ public final class CameraActivity extends Activity implements View.OnClickListen
     
     private final static int TIME_DELAY             = 1000;
     
+    private     FrameLayout     mFrameLaytout;
+    private     GLRendererView  mDisplayView;
     
     private     SurfaceView     mPreviewView;
     private     Spinner         mResolution;
     private     TextView        mInfoText;
 
-    private CameraHelper mCameraHelper              = new CameraHelper();
+    private CameraHelper mCameraHelper;
     private int mSelectedIndex                      = -1;
     
 
@@ -50,12 +53,19 @@ public final class CameraActivity extends Activity implements View.OnClickListen
         setContentView(R.layout.camera_activity);
 
         mPreviewView = (SurfaceView) this.findViewById(R.id.preview);
+        mDisplayView = new GLRendererView(this);
+        mCameraHelper = new CameraHelper(mPreviewView, mDisplayView);
+        
+        mFrameLaytout=(FrameLayout) this.findViewById(R.id.display_container);
+        mFrameLaytout.addView(mDisplayView);
+        mDisplayView.getHolder().addCallback(mDisplayView);
+        
         SurfaceHolder previewHolder = mPreviewView.getHolder();
         mPreviewView.bringToFront();
         mPreviewView.setZOrderOnTop(true);
         mCameraHelper.mPreviewHolder = previewHolder;
         previewHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-        previewHolder.addCallback(mCameraHelper);
+        previewHolder.addCallback(mCameraHelper.previewCallback);
 
         mResolution = (Spinner)this.findViewById(R.id.resolution);
         mResolution.requestFocus();

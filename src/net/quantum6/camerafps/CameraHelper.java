@@ -1,7 +1,6 @@
 package net.quantum6.camerafps;
 
-import java.util.Collections;
-import java.util.Comparator;
+import java.nio.ByteBuffer;
 import java.util.List;
 
 import net.quantum6.fps.FpsCounter;
@@ -9,13 +8,15 @@ import net.quantum6.kit.CameraKit;
 
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
+import android.opengl.GLSurfaceView;
 import android.util.Log;
 import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 
 /**
  *
  */
-final class CameraHelper implements SurfaceHolder.Callback
+final class CameraHelper
 {
     private final static String TAG         = "CameraHelper";
 
@@ -41,10 +42,15 @@ final class CameraHelper implements SurfaceHolder.Callback
     private Camera      mCamera;
     List<Camera.Size>   mSupportedSizes;
     Camera.Size         mPreviewSize;
+    
+    SurfaceView previewVew;
+    GLRendererView rendererView;
+    ByteBuffer byteBuffer;
 
-    CameraHelper()
+    CameraHelper(SurfaceView previewVew, GLRendererView displayView)
     {
-        //
+        this.previewVew  = previewVew;
+        this.rendererView = displayView;
     }
 
     public void changeResolution(int width, int height)
@@ -147,6 +153,9 @@ final class CameraHelper implements SurfaceHolder.Callback
             });
 
             mCamera.startPreview();
+            
+            byteBuffer = ByteBuffer.allocateDirect((mPreviewSize.width * mPreviewSize.height * 3) >> 1);
+            rendererView.setParams(false, byteBuffer, mPreviewSize.width, mPreviewSize.height, frameRate);
         }
         catch (Exception e)
         {
@@ -155,29 +164,35 @@ final class CameraHelper implements SurfaceHolder.Callback
         isInited = true;
     }
 
-    @Override
-    public void surfaceCreated(SurfaceHolder holder)
+    SurfaceHolder.Callback previewCallback = new SurfaceHolder.Callback()
     {
-        Log.d(TAG, "surfaceCreated()");
-    }
-
-    @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height)
-    {
-        Log.d(TAG, "surfaceChanged()");
-        initCamera(0, 0);
-    }
-
-    @Override
-    public void surfaceDestroyed(SurfaceHolder holder)
-    {
-        Log.d(TAG, "surfaceDestroyed()");
-        release();
-    }
+        @Override
+        public void surfaceCreated(SurfaceHolder holder)
+        {
+            Log.d(TAG, "surfaceCreated()");
+        }
+    
+        @Override
+        public void surfaceChanged(SurfaceHolder holder, int format, int width, int height)
+        {
+            Log.d(TAG, "surfaceChanged()");
+            initCamera(0, 0);
+        }
+    
+        @Override
+        public void surfaceDestroyed(SurfaceHolder holder)
+        {
+            Log.d(TAG, "surfaceDestroyed()");
+            release();
+        }
+    };
     
     public void processData(final byte[] data, Camera camera)
     {
         fpsCounter.count();
+        
+        Log.e(TAG, "processData() "+data.length);
+        //requestRender();
     }
 
     private void closeCamera()
