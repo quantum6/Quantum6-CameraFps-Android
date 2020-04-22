@@ -51,7 +51,8 @@ public final class CameraActivity extends Activity implements View.OnClickListen
 
         mPreviewView = (SurfaceView) this.findViewById(R.id.preview);
         SurfaceHolder previewHolder = mPreviewView.getHolder();
-        //mPreviewView.setZOrderOnTop(true);
+        mPreviewView.bringToFront();
+        mPreviewView.setZOrderOnTop(true);
         mCameraHelper.mPreviewHolder = previewHolder;
         previewHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         previewHolder.addCallback(mCameraHelper);
@@ -118,7 +119,7 @@ public final class CameraActivity extends Activity implements View.OnClickListen
                     if (null != mCameraHelper.mPreviewSize)
                     {
                         mInfoText.setText("("+mCameraHelper.mPreviewSize.width+", "+mCameraHelper.mPreviewSize.height
-                                +")="+mCameraHelper.mFpsCurrent
+                                +")="+mCameraHelper.fpsCounter.getFpsAndClear()
                                 +", "+SystemKit.getText(getApplicationContext()));
                         mHandler.sendEmptyMessageDelayed(MESSAGE_CHECK_FPS, TIME_DELAY);
                     }
