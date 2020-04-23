@@ -10,9 +10,12 @@ import android.view.SurfaceView;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.YuvImage;
 import android.util.Log;
 
 public class RendererView extends SurfaceView implements SurfaceHolder.Callback
@@ -52,8 +55,9 @@ public class RendererView extends SurfaceView implements SurfaceHolder.Callback
             m_srcRect = new Rect(0, 0, srcWidth, srcHeight);
         }
         
+        //long time = System.currentTimeMillis();
         MediaCodecKit.NV21ToRGBA(nv21, width, height, rgbBuffer, true);
-        //MediaCodecKit.YV12ToBGR24_Table(nv21, rgbBuffer, width, height);
+        //Log.e(TAG, "cost time="+(System.currentTimeMillis()-time));
 
         dataBuffer.rewind();
         dataBuffer.put(rgbBuffer);
