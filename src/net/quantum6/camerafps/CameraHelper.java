@@ -159,7 +159,7 @@ final class CameraHelper
             }
 
             fpsCounter.count();
-            Log.e(TAG, "onCameraDataArrived()");
+
             ((RendererView)rendererView).drawNV21(data, mPreviewSize.width, mPreviewSize.height); 
         }
     };

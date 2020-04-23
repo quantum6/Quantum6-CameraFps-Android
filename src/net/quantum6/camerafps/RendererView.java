@@ -2,6 +2,8 @@ package net.quantum6.camerafps;
 
 import java.nio.ByteBuffer;
 
+import net.quantum6.mediacodec.MediaCodecKit;
+
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -37,48 +39,6 @@ public class RendererView extends SurfaceView implements SurfaceHolder.Callback
         m_surfaceHolder.addCallback(this);
     }
 
-    /**
-     * NV21图像转RGB或BGR
-     * @param input NV21格式图像数据
-     * @param width 图像宽度
-     * @param height 图像高度
-     * @param output 输出图像缓冲区
-     * @param isRGB 为{@code true}转为RGB图像,否则转为BGR图像
-     */
-    public void NV212RGBorBGR(byte[] input, int width, int height, byte[] output, boolean isRGB)
-    {
-        int nvOff = width * height ;
-        int  i, j, yIndex = 0;
-        int y, u, v;
-        int r, g, b, nvIndex = 0;
-        for(i = 0; i < height; i++){
-            for(j = 0; j < width; j ++,++yIndex){
-                nvIndex = (i / 2)  * width + j - j % 2;
-                y = input[yIndex] & 0xff;
-                u = input[nvOff + nvIndex ] & 0xff;
-                v = input[nvOff + nvIndex + 1] & 0xff;
-
-                // yuv to rgb
-                r = y + ((351 * (v-128))>>8);  //r
-                g = y - ((179 * (v-128) + 86 * (u-128))>>8); //g
-                b = y + ((443 * (u-128))>>8); //b
-                
-                r = ((r>255) ?255 :(r<0)?0:r); 
-                g = ((g>255) ?255 :(g<0)?0:g);
-                b = ((b>255) ?255 :(b<0)?0:b);
-                if(isRGB){
-                    output[yIndex*3 + 0] = (byte) b;
-                    output[yIndex*3 + 1] = (byte) g;
-                    output[yIndex*3 + 2] = (byte) r;
-                }else{
-                    output[yIndex*3 + 0] = (byte) r;
-                    output[yIndex*3 + 1] = (byte) g;
-                    output[yIndex*3 + 2] = (byte) b;
-                }
-            }
-        }
-    }
-    
     public void drawNV21(byte[] nv21, int width, int height)
     {
         if (width != srcWidth || height != srcHeight)
@@ -90,10 +50,10 @@ public class RendererView extends SurfaceView implements SurfaceHolder.Callback
             videoBitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888);
             m_dstRect = new Rect(0, 0, getWidth(), getHeight());
             m_srcRect = new Rect(0, 0, srcWidth, srcHeight);
-            
         }
         
-        NV212RGBorBGR(nv21, width, height, rgbBuffer, true);
+        MediaCodecKit.NV21ToRGBA(nv21, width, height, rgbBuffer, true);
+        //MediaCodecKit.YV12ToBGR24_Table(nv21, rgbBuffer, width, height);
 
         dataBuffer.rewind();
         dataBuffer.put(rgbBuffer);

@@ -37,7 +37,7 @@ public final class CameraActivity extends Activity implements View.OnClickListen
     private final static int TIME_DELAY             = 1000;
     
     private     FrameLayout     mFrameLaytout;
-    private     RendererView       mDisplayView;
+    private     RendererView    mDisplayView;
     
     private     SurfaceView     mPreviewView;
     private     Spinner         mResolution;
@@ -131,7 +131,8 @@ public final class CameraActivity extends Activity implements View.OnClickListen
                     if (null != mCameraHelper.mPreviewSize)
                     {
                         mInfoText.setText("("+mCameraHelper.mPreviewSize.width+", "+mCameraHelper.mPreviewSize.height
-                                +")="+mCameraHelper.fpsCounter.getFpsAndClear()
+                                +")="+mCameraHelper.getFps()
+                                +"x"+mCameraHelper.fpsCounter.getFpsAndClear()
                                 +", "+SystemKit.getText(getApplicationContext()));
                         mHandler.sendEmptyMessageDelayed(MESSAGE_CHECK_FPS, TIME_DELAY);
                     }
