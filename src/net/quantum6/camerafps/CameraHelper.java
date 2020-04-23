@@ -4,11 +4,11 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 import net.quantum6.fps.FpsCounter;
+import net.quantum6.kit.CameraDataThread;
 import net.quantum6.kit.CameraKit;
 
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
-import android.opengl.GLSurfaceView;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -26,8 +26,6 @@ final class CameraHelper
     private final static int MAX_FPS        = 60;
     
     private final static int PREVIEW_BUFFER_COUNT   = 5;
-    
-    private final static int MIN_VIDEO_SIZE = 120;
 
     private int frameRate                   = 30;
 
@@ -44,12 +42,12 @@ final class CameraHelper
     Camera.Size         mPreviewSize;
     
     SurfaceView previewVew;
-    GLRendererView rendererView;
+    SurfaceView rendererView;
     ByteBuffer byteBuffer;
 
-    CameraHelper(SurfaceView previewVew, GLRendererView displayView)
+    CameraHelper(SurfaceView previewVew, SurfaceView displayView)
     {
-        this.previewVew  = previewVew;
+        this.previewVew   = previewVew;
         this.rendererView = displayView;
     }
 
@@ -136,26 +134,12 @@ final class CameraHelper
                 mCamera.addCallbackBuffer(new byte[bufSize]);
             }
 
-            mCamera.setPreviewCallbackWithBuffer(new Camera.PreviewCallback()
-            {
-                @Override
-                public void onPreviewFrame(byte[] data, Camera camera)
-                {
-                    if (null != data && data.length != 0)
-                    {
-                        processData(data, camera);
-                    }
-                    if (null != mCamera)
-                    {
-                        mCamera.addCallbackBuffer(data);
-                    }
-                }
-            });
-
             mCamera.startPreview();
-            
+            mCamera.setPreviewCallbackWithBuffer(dataThread);
+            new Thread(dataThread).start();
+            mCamera.startPreview();
+
             byteBuffer = ByteBuffer.allocateDirect((mPreviewSize.width * mPreviewSize.height * 3) >> 1);
-            rendererView.setParams(false, byteBuffer, mPreviewSize.width, mPreviewSize.height, frameRate);
         }
         catch (Exception e)
         {
@@ -164,6 +148,27 @@ final class CameraHelper
         isInited = true;
     }
 
+    private CameraDataThread dataThread = new CameraDataThread()
+    {
+        @Override
+        public void onCameraDataArrived(final byte[] data, Camera camera)
+        {
+            if (data == null || data.length == 0)
+            {
+                return;
+            }
+
+            fpsCounter.count();
+            Log.e(TAG, "onCameraDataArrived()");
+            ((RendererView)rendererView).drawNV21(data, mPreviewSize.width, mPreviewSize.height); 
+        }
+    };
+
+    public int getFps()
+    {
+        return dataThread.getFps();
+    }
+    
     SurfaceHolder.Callback previewCallback = new SurfaceHolder.Callback()
     {
         @Override
@@ -186,21 +191,6 @@ final class CameraHelper
             release();
         }
     };
-    
-    public void processData(final byte[] data, Camera camera)
-    {
-        fpsCounter.count();
-        
-        //Log.e(TAG, "processData() "+data.length);
-        if (rendererView.mBuffer.limit() != data.length)
-        {
-            rendererView.mBuffer = ByteBuffer.allocateDirect(data.length);
-        }
-        rendererView.mBuffer.rewind();
-        byte[] newData = new byte[data.length];
-        rendererView.mBuffer.put(newData);
-        rendererView.requestRender();
-    }
 
     private void closeCamera()
     {
@@ -208,6 +198,7 @@ final class CameraHelper
         {
             return;
         }
+        dataThread.stop();
         try
         {
             mCamera.setPreviewCallback(null); // 锛侊紒杩欎釜蹇呴』鍦ㄥ墠锛屼笉鐒堕��鍑哄嚭閿�

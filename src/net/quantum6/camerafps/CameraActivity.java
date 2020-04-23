@@ -37,7 +37,7 @@ public final class CameraActivity extends Activity implements View.OnClickListen
     private final static int TIME_DELAY             = 1000;
     
     private     FrameLayout     mFrameLaytout;
-    private     GLRendererView  mDisplayView;
+    private     RendererView       mDisplayView;
     
     private     SurfaceView     mPreviewView;
     private     Spinner         mResolution;
@@ -54,7 +54,7 @@ public final class CameraActivity extends Activity implements View.OnClickListen
         setContentView(R.layout.camera_activity);
 
         mPreviewView = (SurfaceView) this.findViewById(R.id.preview);
-        mDisplayView = new GLRendererView(this);
+        mDisplayView = new RendererView(this);
         mCameraHelper = new CameraHelper(mPreviewView, mDisplayView);
         
         mFrameLaytout=(FrameLayout) this.findViewById(R.id.display_container);
