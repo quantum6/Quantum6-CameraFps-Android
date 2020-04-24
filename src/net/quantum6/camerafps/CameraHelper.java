@@ -183,6 +183,11 @@ final class CameraHelper
         return dataThread.getFps();
     }
     
+    public long getMaxTime()
+    {
+        return dataThread.getMaxTime();
+    }
+    
     SurfaceHolder.Callback previewCallback = new SurfaceHolder.Callback()
     {
         @Override
