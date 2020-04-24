@@ -179,7 +179,7 @@ public class VideoRendererView extends GLSurfaceView implements GLSurfaceView.Re
         	    byte[] test = new byte[mBufferWidthY*mBufferHeightY*3/2];
         	    rendererColor += 32;
         	    Arrays.fill(test, (byte)rendererColor);
-        	    mBuffer.put(test);
+        	    //mBuffer.put(test);
         	    
 		        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 		        GLES20.glBindTexture(  GLES20.GL_TEXTURE_2D, mTextureY[0]);

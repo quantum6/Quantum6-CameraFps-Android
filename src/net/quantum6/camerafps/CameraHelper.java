@@ -140,6 +140,10 @@ final class CameraHelper
             mCamera.startPreview();
 
             byteBuffer = ByteBuffer.allocateDirect((mPreviewSize.width * mPreviewSize.height * 3) >> 1);
+            rendererView.setParams(false, byteBuffer,
+                    mPreviewSize.width,
+                    mPreviewSize.height,
+                    15);
         }
         catch (Exception e)
         {
@@ -160,6 +164,8 @@ final class CameraHelper
 
             fpsCounter.count();
 
+            byteBuffer.rewind();
+            byteBuffer.put(data);
             //((RendererView)rendererView).drawNV21(data, mPreviewSize.width, mPreviewSize.height);
             rendererView.requestRender();
         }
