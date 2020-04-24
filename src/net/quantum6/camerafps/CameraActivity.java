@@ -3,6 +3,9 @@ package net.quantum6.camerafps;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.quantum6.kit.SystemKit;
+import net.quantum6.kit.VideoRendererView;
+
 import android.app.Activity;
 import android.graphics.Color;
 import android.hardware.Camera.Size;

@@ -6,6 +6,8 @@ import java.util.List;
 import net.quantum6.fps.FpsCounter;
 import net.quantum6.kit.CameraDataThread;
 import net.quantum6.kit.CameraKit;
+import net.quantum6.kit.VideoRendererView;
+import net.quantum6.mediacodec.MediaCodecKit;
 
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
@@ -155,7 +157,7 @@ final class CameraHelper
     private CameraDataThread dataThread = new CameraDataThread()
     {
         @Override
-        public void onCameraDataArrived(final byte[] data, Camera camera)
+        public void onCameraDataArrived(final byte[] data, final Camera camera)
         {
             if (data == null || data.length == 0)
             {
@@ -164,9 +166,11 @@ final class CameraHelper
 
             fpsCounter.count();
 
+            byte[] dest = new byte[data.length];
+            MediaCodecKit.NV21_2_yuv420p(dest, data, mPreviewSize.width, mPreviewSize.height);
+            
             byteBuffer.rewind();
-            byteBuffer.put(data);
-            //((RendererView)rendererView).drawNV21(data, mPreviewSize.width, mPreviewSize.height);
+            byteBuffer.put(dest);
             rendererView.requestRender();
         }
     };
