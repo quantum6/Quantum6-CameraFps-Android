@@ -9,10 +9,13 @@ import android.hardware.Camera.Size;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
@@ -37,7 +40,6 @@ public final class CameraActivity extends Activity implements View.OnClickListen
     private final static int TIME_DELAY             = 1000;
     
     private     FrameLayout     mFrameLaytout;
-    private     RendererView    mDisplayView;
     
     private     SurfaceView     mPreviewView;
     private     Spinner         mResolution;
@@ -46,21 +48,48 @@ public final class CameraActivity extends Activity implements View.OnClickListen
     private CameraHelper mCameraHelper;
     private int mSelectedIndex                      = -1;
     
+    private VideoRendererView remotePreview;
+    private void loadVideoPreview(){
+        mFrameLaytout = (FrameLayout)findViewById(R.id.display_container);
 
+        mFrameLaytout.removeAllViews();
+        //final View remotePreview = mAVSession.startVideoConsumerPreview();
+        remotePreview = new VideoRendererView(this);
+        remotePreview.setParams(false, null, 176, 144, 15);
+        if(remotePreview != null){
+            final ViewParent viewParent = remotePreview.getParent();
+            if(viewParent != null && viewParent instanceof ViewGroup){
+                  ((ViewGroup)(viewParent)).removeView(remotePreview);
+            }
+            mFrameLaytout.addView(remotePreview);
+        }
+        
+        new Thread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                //while (true)
+                {
+                if (remotePreview != null)
+                {
+                    Log.e(TAG, "remotePreview.requestRender()");
+                    remotePreview.requestRender();
+                }
+                }
+            }
+        }).start();
+    }
+    
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.camera_activity);
 
+        loadVideoPreview();
         mPreviewView = (SurfaceView) this.findViewById(R.id.preview);
-        mDisplayView = new RendererView(this);
-        mCameraHelper = new CameraHelper(mPreviewView, mDisplayView);
-        
-        mFrameLaytout=(FrameLayout) this.findViewById(R.id.display_container);
-        mFrameLaytout.addView(mDisplayView);
-        mDisplayView.getHolder().addCallback(mDisplayView);
-        //mDisplayView.setBackgroundColor(Color.RED);
+        mCameraHelper = new CameraHelper(mPreviewView, remotePreview);
         
         mPreviewView.bringToFront();
         mPreviewView.setZOrderOnTop(true);

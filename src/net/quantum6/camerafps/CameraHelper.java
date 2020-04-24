@@ -42,10 +42,10 @@ final class CameraHelper
     Camera.Size         mPreviewSize;
     
     SurfaceView previewVew;
-    SurfaceView rendererView;
+    VideoRendererView rendererView;
     ByteBuffer byteBuffer;
 
-    CameraHelper(SurfaceView previewVew, SurfaceView displayView)
+    CameraHelper(SurfaceView previewVew, VideoRendererView displayView)
     {
         this.previewVew   = previewVew;
         this.rendererView = displayView;
@@ -160,7 +160,8 @@ final class CameraHelper
 
             fpsCounter.count();
 
-            ((RendererView)rendererView).drawNV21(data, mPreviewSize.width, mPreviewSize.height); 
+            //((RendererView)rendererView).drawNV21(data, mPreviewSize.width, mPreviewSize.height);
+            rendererView.requestRender();
         }
     };
 
