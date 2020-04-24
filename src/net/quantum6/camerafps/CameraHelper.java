@@ -156,6 +156,8 @@ final class CameraHelper
 
     private CameraDataThread dataThread = new CameraDataThread()
     {
+        private byte[] yuv420sp;
+        
         @Override
         public void onCameraDataArrived(final byte[] data, final Camera camera)
         {
@@ -166,12 +168,13 @@ final class CameraHelper
 
             fpsCounter.count();
 
-            byte[] dest = new byte[data.length];
-            MediaCodecKit.NV21_2_yuv420p(dest, data, mPreviewSize.width, mPreviewSize.height);
+            if (yuv420sp == null || yuv420sp.length != data.length)
+            {
+                yuv420sp = new byte[data.length];
+            }
+            MediaCodecKit.NV21_2_yuv420p(yuv420sp, data, mPreviewSize.width, mPreviewSize.height);
             
-            byteBuffer.rewind();
-            byteBuffer.put(dest);
-            rendererView.requestRender();
+            rendererView.newDataArrived(yuv420sp);
         }
     };
 

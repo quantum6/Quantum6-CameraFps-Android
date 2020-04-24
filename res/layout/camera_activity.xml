@@ -9,15 +9,16 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:orientation="horizontal"
-        android:layout_gravity="bottom|right"
-        android:gravity="bottom|right" >
-    </FrameLayout>
+        android:layout_gravity="bottom|left"
+    	android:layout_alignParentLeft="true"
+    	android:layout_alignParentBottom="true"
+		/>
     
     <SurfaceView 
         android:id="@+id/preview"
         android:layout_width="300dp"
     	android:layout_height="200dp"
-    	android:layout_gravity="right|bottom"
+    	android:layout_gravity="bottom|right"
     	android:layout_alignParentRight="true"
     	android:layout_alignParentBottom="true"
     	/>
