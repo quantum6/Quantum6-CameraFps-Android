@@ -66,22 +66,6 @@ public final class CameraActivity extends Activity implements View.OnClickListen
             }
             mFrameLaytout.addView(remotePreview);
         }
-        
-        new Thread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                //while (true)
-                {
-                if (remotePreview != null)
-                {
-                    Log.e(TAG, "remotePreview.requestRender()");
-                    remotePreview.requestRender();
-                }
-                }
-            }
-        }).start();
     }
     
     @Override
@@ -165,9 +149,9 @@ public final class CameraActivity extends Activity implements View.OnClickListen
                         mInfoText.setText("("+mCameraHelper.mPreviewSize.width+", "+mCameraHelper.mPreviewSize.height
                                 +")="+mCameraHelper.getFps()
                                 +"x"+mCameraHelper.fpsCounter.getFpsAndClear()
-                                +"max="+mCameraHelper.getMaxTime()
+                                +", max="+mCameraHelper.getMaxTime()
                                 +"\n"
-                                +", "+SystemKit.getText(getApplicationContext()));
+                                +SystemKit.getText(getApplicationContext()));
                         mHandler.sendEmptyMessageDelayed(MESSAGE_CHECK_FPS, TIME_DELAY);
                     }
                     break;
