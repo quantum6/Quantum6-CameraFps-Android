@@ -172,7 +172,7 @@ final class CameraHelper
             {
                 yuv420sp = new byte[data.length];
             }
-            MediaCodecKit.NV21_2_yuv420p(yuv420sp, data, mPreviewSize.width, mPreviewSize.height);
+            MediaCodecKit.NV21_TO_YUV420P(yuv420sp, data, mPreviewSize.width, mPreviewSize.height);
             
             rendererView.newDataArrived(yuv420sp);
         }
@@ -181,11 +181,6 @@ final class CameraHelper
     public int getFps()
     {
         return dataThread.getFps();
-    }
-    
-    public long getMaxTime()
-    {
-        return dataThread.getMaxTime();
     }
     
     SurfaceHolder.Callback previewCallback = new SurfaceHolder.Callback()

@@ -149,9 +149,7 @@ public final class CameraActivity extends Activity implements View.OnClickListen
                         mInfoText.setText("("+mCameraHelper.mPreviewSize.width+", "+mCameraHelper.mPreviewSize.height
                                 +")="+mCameraHelper.getFps()
                                 +"x"+mCameraHelper.fpsCounter.getFpsAndClear()
-                                +", max="+mCameraHelper.getMaxTime()
-                                +"\n"
-                                +SystemKit.getText(getApplicationContext()));
+                                +"\n"+SystemKit.getText(getApplicationContext()));
                         mHandler.sendEmptyMessageDelayed(MESSAGE_CHECK_FPS, TIME_DELAY);
                     }
                     break;
