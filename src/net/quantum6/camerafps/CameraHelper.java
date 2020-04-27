@@ -188,20 +188,20 @@ final class CameraHelper
         @Override
         public void surfaceCreated(SurfaceHolder holder)
         {
-            Log.d(TAG, "surfaceCreated()");
+            Log.e(TAG, "surfaceCreated()");
         }
     
         @Override
         public void surfaceChanged(SurfaceHolder holder, int format, int width, int height)
         {
-            Log.d(TAG, "surfaceChanged()");
+            Log.e(TAG, "surfaceChanged()");
             initCamera(0, 0);
         }
     
         @Override
         public void surfaceDestroyed(SurfaceHolder holder)
         {
-            Log.d(TAG, "surfaceDestroyed()");
+            Log.e(TAG, "surfaceDestroyed()");
             release();
         }
     };

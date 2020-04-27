@@ -34,7 +34,7 @@ import android.widget.TextView;
  */
 public final class CameraActivity extends Activity implements View.OnClickListener, OnItemSelectedListener
 {
-    private final static String TAG = "CameraActivity";
+    private final static String TAG = CameraActivity.class.getCanonicalName();
 
     private final static int MESSAGE_CHECK_FPS      = 1;
     private final static int MESSAGE_CHECK_INIT     = 2;
