@@ -7,12 +7,10 @@ import net.quantum6.kit.SystemKit;
 import net.quantum6.kit.VideoRendererView;
 
 import android.app.Activity;
-import android.graphics.Color;
-import android.hardware.Camera.Size;
+import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -23,7 +21,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -42,7 +39,6 @@ public final class CameraActivity extends Activity implements View.OnClickListen
     
     private final static int TIME_DELAY             = 1000;
     
-    private     FrameLayout     mFrameLaytout;
     
     private     SurfaceView     mPreviewView;
     private     Spinner         mResolution;
@@ -51,20 +47,21 @@ public final class CameraActivity extends Activity implements View.OnClickListen
     private CameraHelper mCameraHelper;
     private int mSelectedIndex                      = -1;
     
-    private VideoRendererView remotePreview;
+    private     RelativeLayout     mFrameLaytout;
+    private VideoRendererView mRendererView;
+    
     private void loadVideoPreview(){
-        mFrameLaytout = (FrameLayout)findViewById(R.id.display_container);
+        mFrameLaytout = (RelativeLayout)findViewById(R.id.display_container);
 
         mFrameLaytout.removeAllViews();
         //final View remotePreview = mAVSession.startVideoConsumerPreview();
-        remotePreview = new VideoRendererView(this);
-        remotePreview.setParams(false, null, 176, 144, 15);
-        if(remotePreview != null){
-            final ViewParent viewParent = remotePreview.getParent();
+        mRendererView = new VideoRendererView(this);
+        if(mRendererView != null){
+            final ViewParent viewParent = mRendererView.getParent();
             if(viewParent != null && viewParent instanceof ViewGroup){
-                  ((ViewGroup)(viewParent)).removeView(remotePreview);
+                  ((ViewGroup)(viewParent)).removeView(mRendererView);
             }
-            mFrameLaytout.addView(remotePreview);
+            mFrameLaytout.addView(mRendererView);
         }
     }
     
@@ -76,7 +73,7 @@ public final class CameraActivity extends Activity implements View.OnClickListen
 
         loadVideoPreview();
         mPreviewView = (SurfaceView) this.findViewById(R.id.preview);
-        mCameraHelper = new CameraHelper(mPreviewView, remotePreview);
+        mCameraHelper = new CameraHelper(mPreviewView, mRendererView);
         
         mPreviewView.bringToFront();
         mPreviewView.setZOrderOnTop(true);
@@ -122,7 +119,7 @@ public final class CameraActivity extends Activity implements View.OnClickListen
         {
             for (int i = 0; i < mCameraHelper.mSupportedSizes.size(); i++)
             {
-                Size size = mCameraHelper.mSupportedSizes.get(i);
+                Camera.Size size = mCameraHelper.mSupportedSizes.get(i);
                 resolutions.add("分辨率"+i+"=("+size.width+", "+size.height+")");
             }
         }
@@ -170,8 +167,8 @@ public final class CameraActivity extends Activity implements View.OnClickListen
                 case MESSAGE_CHANGE_SHAPE:
                     if (mCameraHelper.isInited)
                     {
-                        double ratio = 1.0 * mCameraHelper.mPreviewSize.width/mCameraHelper.mPreviewSize.height;
-                        adjustViewShape(mPreviewView, ratio);
+                        adjustViewShape(mPreviewView);
+                        adjustViewShape(mRendererView);
                     }
                     else
                     {
@@ -189,8 +186,15 @@ public final class CameraActivity extends Activity implements View.OnClickListen
      * @param view
      * @param ratio
      */
-    private void adjustViewShape(View view, double ratio)
+    private void adjustViewShape(View view)
     {
+        if (view == null)
+        {
+            return;
+        }
+        
+        double ratio = 1.0 * mCameraHelper.mPreviewSize.width/mCameraHelper.mPreviewSize.height;
+
         int height   = view.getMeasuredHeight();
         int newWidth = (int)(height*ratio);
         int width    = view.getMeasuredHeight();
